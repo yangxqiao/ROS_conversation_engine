@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import rospy
 from sensor_msgs.msg import JointState
 
@@ -11,4 +12,4 @@ if __name__ == '__main__':
     rospy.init_node('joints_example')
     rospy.Subscriber('/qt_robot/joints/state', JointState, joint_states_callback)
 
-    rospy.spin()
+rospy.spin()
