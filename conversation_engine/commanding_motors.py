@@ -3,7 +3,7 @@ import rospy
 from std_msgs.msg import Float64MultiArray
 
 if __name__ == '__main__':
-    rospy.init_node('joints_example')
+    rospy.init_node('moving_joints_example')
     right_pub = rospy.Publisher('/qt_robot/right_arm_position/command', Float64MultiArray, queue_size=1)
     ref = Float64MultiArray()
     RightShoulderPitch = 0
