@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from qt_nuitrack_app.msg import Faces
+from std_msgs.msg import String
 
 def head_callback(msg):
 #    strmsg = "---------------------'\n'"
@@ -12,11 +13,11 @@ def head_callback(msg):
     # rospy.loginfo(type(msg.faces))
     rospy.loginfo(msg.faces[0].left_eye)
     # rospy.loginfo(len(msg.faces))
-    return True
+    show_expression("QT/happy")
 
 def show_expression(file_path):
-	gesturePlay_pub = rospy.Publisher('/qt_robot/gesture/play', String, queue_size=10)
-	gesturePlay_pub.publish(file_path)
+	emotionShow_pub = rospy.Publisher('/qt_robot/emotion/show', String, queue_size=10)
+	emotionShow_pub.publish("QT/shy")
 
 
 if __name__ == '__main__':
@@ -24,9 +25,6 @@ if __name__ == '__main__':
     print("Initialize the node")
 
     # create subscriber
-    recognize_face = rospy.Subscriber('/qt_nuitrack_app/faces', Faces, head_callback)
-    if recognize_face:
-    	show_expression("QT/happy")
-    	recognize_face = False
+    rospy.Subscriber('/qt_nuitrack_app/faces', Faces, head_callback)
 
 rospy.spin()
