@@ -12,12 +12,21 @@ def head_callback(msg):
     # rospy.loginfo(type(msg.faces))
     rospy.loginfo(msg.faces[0].left_eye)
     # rospy.loginfo(len(msg.faces))
+    return True
+
+def show_expression(file_path):
+	gesturePlay_pub = rospy.Publisher('/qt_robot/gesture/play', String, queue_size=10)
+	gesturePlay_pub.publish(file_path)
+
 
 if __name__ == '__main__':
     rospy.init_node('reading_head_example')
     print("Initialize the node")
 
     # create subscriber
-    rospy.Subscriber('/qt_nuitrack_app/faces', Faces, head_callback)
+    recognize_face = rospy.Subscriber('/qt_nuitrack_app/faces', Faces, head_callback)
+    if recognize_face:
+    	show_expression("QT/happy")
+    	recognize_face = False
 
 rospy.spin()
