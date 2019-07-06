@@ -14,10 +14,17 @@ def head_callback(msg):
     rospy.loginfo(msg.faces[0].left_eye)
     # rospy.loginfo(len(msg.faces))
     show_expression("QT/happy")
+    play_gesture("QT/happy")
+    print("---------------------")
+    return msg.faces[0].left_eye
 
 def show_expression(file_path):
-	emotionShow_pub = rospy.Publisher('/qt_robot/emotion/show', String, queue_size=10)
-	emotionShow_pub.publish("QT/shy")
+	emotionShow_pub = rospy.Publisher('/qt_robot/emotion/show', String, queue_size=1)
+	emotionShow_pub.publish(file_path)
+
+def play_gesture(file_path):
+    gesturePlay_pub = rospy.Publisher('/qt_robot/gesture/play', String, queue_size=1)
+    gesturePlay_pub.publish(file_path)
 
 
 if __name__ == '__main__':
