@@ -4,19 +4,21 @@ from qt_nuitrack_app.msg import Faces
 from std_msgs.msg import String
 
 def head_callback(msg):
-#    strmsg = "---------------------'\n'"
-#    strmsg += "left_eye: %.2f'\n'" % (msg.faces.left_eye[0])
-#    strmsg += "left_eye: %.2f'\n'" % (msg.faces.left_eye[1])
-#    strmsg += "right_eye: %.2f'\n'" % (msg.faces.right_eye[0])
-#    strmsg += "right_eye: %.2f'\n'" % (msg.faces.right_eye[1])
-  	
-    # rospy.loginfo(type(msg.faces))
-    rospy.loginfo(msg.faces[0].left_eye)
-    # rospy.loginfo(len(msg.faces))
-    show_expression("QT/happy")
-    play_gesture("QT/happy")
-    print("---------------------")
-    return msg.faces[0].left_eye
+    global count
+    count = count + 1
+    if count == 5:
+        strmsg_left = "Left eye: (%.4f, %.4f)" % (msg.faces[0].left_eye[0], msg.faces[0].left_eye[1])
+        strmsg_right = "Right eye: (%.4f, %.4f)" % (msg.faces[0].right_eye[0], msg.faces[0].right_eye[1])
+
+        show_expression("QT/happy")
+        play_gesture("QT/happy")
+        
+        rospy.loginfo(strmsg_left)
+        rospy.loginfo(strmsg_right)
+
+        print("---------------------")
+
+        count = 0
 
 def show_expression(file_path):
 	emotionShow_pub = rospy.Publisher('/qt_robot/emotion/show', String, queue_size=1)
@@ -31,6 +33,7 @@ if __name__ == '__main__':
     rospy.init_node('reading_head_example')
     print("Initialize the node")
 
+    count = 0
     # create subscriber
     rospy.Subscriber('/qt_nuitrack_app/faces', Faces, head_callback)
 
