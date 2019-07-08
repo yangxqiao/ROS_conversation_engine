@@ -5,22 +5,20 @@ from std_msgs.msg import String
 
 class PositionInfo:
     def __init__(self):
-        self.left_eye = [0.5, 0.5]
-        self.right_eye = [0.5, 0.5]
+        self.coordinate_x = 0.5
+        self.coordinate_y = 0.5
 
-    def get_left_eye(self):
-        return self.left_eye
+    def get_coordinate_x(self):
+        return self.coordinate_x
 
-    def get_right_eye(self):
-        return self.right_eye
+    def get_coordinate_y(self):
+        return self.coordinate_y
 
-    def set_left_eye(self, new_position):
-        self.left_eye[0] = new_position[0]
-        self.left_eye[0] = new_position[1]
+    def set_coordinate_x(self, new_position):
+        self.coordinate_x = (new_position[0] + new_position[1]) / 2
 
-    def set_right_eye(self, new_position):
-        self.right_eye[0] = new_position[0]
-        self.right_eye[1] = new_position[1]
+    def set_coordinate_y(self, new_position):
+        self.coordinate_y = (new_position[0] + new_position[1]) / 2
 
 
 def head_callback(msg):
@@ -31,14 +29,17 @@ def head_callback(msg):
         strmsg_left = "Left eye: (%.4f, %.4f)" % (msg.faces[0].left_eye[0], msg.faces[0].left_eye[1])
         strmsg_right = "Right eye: (%.4f, %.4f)" % (msg.faces[0].right_eye[0], msg.faces[0].right_eye[1])
 
-        my_position.set_left_eye(msg.faces[0].left_eye)
-        my_position.set_right_eye(msg.faces[0].right_eye)
+        my_position.set_coordinate_x([msg.faces[0].left_eye[0], msg.faces[0].right_eye[0]])
+        my_position.set_coordinate_y([msg.faces[0].left_eye[0], msg.faces[0].right_eye[1]])
+
+        strmsg_x = "The coordinate_x of the head: (%.4f, %.4f)" % my_position.get_coordinate_x()
+        strmsg_y = "The coordinate_y of the head: (%.4f, %.4f)" % my_position.get_coordinate_y()
 
         show_expression("QT/happy")
         play_gesture("QT/happy")
         
-        rospy.loginfo(strmsg_left)
-        rospy.loginfo(strmsg_right)
+        rospy.loginfo(strmsg_x)
+        rospy.loginfo(strmsg_y)
 
         print("---------------------")
 
@@ -63,5 +64,7 @@ if __name__ == '__main__':
     my_position = PositionInfo()
     # create subscriber
     rospy.Subscriber('/qt_nuitrack_app/faces', Faces, head_callback)
+
+    print("Finish subscribing to the topic.")
 
 rospy.spin()
