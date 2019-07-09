@@ -2,12 +2,15 @@
 import rospy
 from qt_nuitrack_app.msg import Faces
 from std_msgs.msg import String
+import os
+from std_msgs.msg import Float64MultiArray
+
 
 class PositionInfo:
     def __init__(self):
         self.coordinate_x = 0.5
         self.coordinate_y = 0.5
-
+    
     def get_coordinate_x(self):
         return self.coordinate_x
 
@@ -19,6 +22,19 @@ class PositionInfo:
 
     def set_coordinate_y(self, new_position):
         self.coordinate_y = (new_position[0] + new_position[1]) / 2
+
+    def publish_new_head_position(self):
+        head_position = [self.get_coordinate_x(), self.get_coordinate_y()]
+        qt_position = [0.5, 0.5]
+        move_head((-10)*(head_position[0]-qt_position[0]), (10)*(head_position[1]-qt_position[1]))
+
+    def move_head(HeadYaw, HeadPitch):
+        ref = Float64MultiArray()
+        ref.data.append(HeadYaw)
+        ref.data.append(HeadPitch)
+        # head_pub.publish(ref)
+        strmsg = "{}".format(ref)
+        os.system('rostopic pub --once /qt_robot/head_position/command std_msgs/Float64MultiArray "'+strmsg+"\"")
 
 
 def head_callback(msg):
@@ -35,15 +51,18 @@ def head_callback(msg):
         strmsg_x = "The coordinate_x of the head: %.4f" % my_position.get_coordinate_x()
         strmsg_y = "The coordinate_y of the head: %.4f" % my_position.get_coordinate_y()
 
-        show_expression("QT/happy")
-        play_gesture("QT/happy")
+        # show_expression("QT/happy")
+        # play_gesture("QT/happy")
         
         rospy.loginfo(strmsg_x)
         rospy.loginfo(strmsg_y)
 
         print("-----------------------------------------")
 
+        my_position.publish_new_head_position()
+
         count = 0
+
 
 
 def show_expression(file_path):
@@ -64,7 +83,6 @@ if __name__ == '__main__':
     my_position = PositionInfo()
     # create subscriber
     rospy.Subscriber('/qt_nuitrack_app/faces', Faces, head_callback)
-
     print("Finish subscribing to the topic.")
 
 rospy.spin()
