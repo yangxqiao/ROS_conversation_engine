@@ -32,8 +32,8 @@ def head_callback(msg):
         my_position.set_coordinate_x([msg.faces[0].left_eye[0], msg.faces[0].right_eye[0]])
         my_position.set_coordinate_y([msg.faces[0].left_eye[0], msg.faces[0].right_eye[1]])
 
-        strmsg_x = "The coordinate_x of the head: (%.4f, %.4f)" % my_position.get_coordinate_x()
-        strmsg_y = "The coordinate_y of the head: (%.4f, %.4f)" % my_position.get_coordinate_y()
+        strmsg_x = "The coordinate_x of the head: %.4f" % my_position.get_coordinate_x()
+        strmsg_y = "The coordinate_y of the head: %.4f" % my_position.get_coordinate_y()
 
         show_expression("QT/happy")
         play_gesture("QT/happy")
@@ -41,14 +41,14 @@ def head_callback(msg):
         rospy.loginfo(strmsg_x)
         rospy.loginfo(strmsg_y)
 
-        print("---------------------")
+        print("-----------------------------------------")
 
         count = 0
 
 
 def show_expression(file_path):
-	emotionShow_pub = rospy.Publisher('/qt_robot/emotion/show', String, queue_size=1)
-	emotionShow_pub.publish(file_path)
+    emotionShow_pub = rospy.Publisher('/qt_robot/emotion/show', String, queue_size=1)
+    emotionShow_pub.publish(file_path)
 
 
 def play_gesture(file_path):

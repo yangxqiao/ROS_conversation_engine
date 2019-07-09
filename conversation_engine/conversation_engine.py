@@ -4,6 +4,7 @@ import rospy
 from std_msgs.msg import String
 from qt_robot_interface.srv import *
 from qt_gesture_controller.srv import *
+from std_msgs.msg import Float64MultiArray
 
 # the following activities will run in parallel on the robot
 # with no execution order
@@ -16,6 +17,12 @@ def publishAllCuncurent():
     # behaviorTalkText cannot be used with speechSay at the same time
     # but it is okay to use in sequence
     behaviorTalkAudio_pub.publish("QT/Qt3.wav")
+    ref = Float64MultiArray()
+    RightShoulderPitch = 0
+    RightShoulderRoll = 10
+    RightElbowRoll = 10
+    ref.data = [RightShoulderPitch, RightShoulderRoll, RightElbowRoll]
+    right_pub.publish(ref)
 
 # the following activities will run in sequence on the robot
 # one after another
@@ -38,6 +45,7 @@ if __name__ == '__main__':
     gesturePlay_pub = rospy.Publisher('/qt_robot/gesture/play', String, queue_size=10)
     behaviorTalkText_pub = rospy.Publisher('/qt_robot/behavior/talkText', String, queue_size=10)
     behaviorTalkAudio_pub = rospy.Publisher('/qt_robot/behavior/talkAudio', String, queue_size=10)
+    right_pub = rospy.Publisher("/qt_robot/right_arm_position/command", Float64MultiArray, queue_size=1)
 
     # wait for publisher/subscriber connections
     wtime_begin = rospy.get_time()
