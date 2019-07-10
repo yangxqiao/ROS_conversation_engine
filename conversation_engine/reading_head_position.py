@@ -10,6 +10,8 @@ class PositionInfo:
     def __init__(self):
         self.coordinate_x = 0.5
         self.coordinate_y = 0.5
+        self.absolute_x = 0
+        self.absolute_y = 0
     
     def get_coordinate_x(self):
         return self.coordinate_x
@@ -23,11 +25,16 @@ class PositionInfo:
     def set_coordinate_y(self, new_position):
         self.coordinate_y = (new_position[0] + new_position[1]) / 2
 
-    def publish_new_head_position(self):
-        head_position = [self.get_coordinate_x(), self.get_coordinate_y()]
+    def process_new_head_position(self):
         print("[HeadYaw, HeadPitch]")
-        print([40*(head_position[0]-0.5), 40*(head_position[1]-0.5)])
-        self.move_head(-40*(head_position[0]-0.5), 40*(head_position[1]-0.5))
+        print([100*(1-head_position[0])-50, 40*(head_position[1]-1)+20])
+        
+        HeadYaw = 100*(1-head_position[0])-50 + self.absolute_x
+        HeadPitch = 40*(head_position[1]-1)+20 + self.absolute_y
+        self.absolute_x = HeadYaw
+        self.absolute_y = HeadPitch
+
+        self.move_head(HeadYaw, HeadPitch)
 
     def move_head(self, HeadYaw, HeadPitch):
         ref = Float64MultiArray()
@@ -59,7 +66,7 @@ def head_callback(msg):
         
         rospy.loginfo(strmsg_x)
         rospy.loginfo(strmsg_y)
-        my_position.publish_new_head_position()
+        my_position.process_new_head_position()
         print("-----------------------------------------")
 
         count = 0
