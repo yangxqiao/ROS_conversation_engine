@@ -25,13 +25,12 @@ class PositionInfo:
 
     def publish_new_head_position(self):
         head_position = [self.get_coordinate_x(), self.get_coordinate_y()]
-        qt_position = [0.5, 0.5]
-        move_head((-10)*(head_position[0]-qt_position[0]), (10)*(head_position[1]-qt_position[1]))
+        self.move_head(100*(1-head_position[0])-50, 40*(head_position[1]-1)+20)
 
-    def move_head(HeadYaw, HeadPitch):
+    def move_head(self, HeadYaw, HeadPitch):
         ref = Float64MultiArray()
         ref.data.append(HeadYaw)
-        ref.data.append(HeadPitch)
+        ref.data.append(HeadPitch) 
         # head_pub.publish(ref)
         strmsg = "{}".format(ref)
         os.system('rostopic pub --once /qt_robot/head_position/command std_msgs/Float64MultiArray "'+strmsg+"\"")
@@ -40,7 +39,8 @@ class PositionInfo:
 def head_callback(msg):
     global count
     count = count + 1
-    if count == 5:
+    print(count)
+    if count == 6:
 
         strmsg_left = "Left eye: (%.4f, %.4f)" % (msg.faces[0].left_eye[0], msg.faces[0].left_eye[1])
         strmsg_right = "Right eye: (%.4f, %.4f)" % (msg.faces[0].right_eye[0], msg.faces[0].right_eye[1])
@@ -56,10 +56,8 @@ def head_callback(msg):
         
         rospy.loginfo(strmsg_x)
         rospy.loginfo(strmsg_y)
-
-        print("-----------------------------------------")
-
         my_position.publish_new_head_position()
+        print("-----------------------------------------")
 
         count = 0
 
@@ -85,4 +83,4 @@ if __name__ == '__main__':
     rospy.Subscriber('/qt_nuitrack_app/faces', Faces, head_callback)
     print("Finish subscribing to the topic.")
 
-rospy.spin()
+    rospy.spin()
