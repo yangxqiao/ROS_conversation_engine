@@ -25,7 +25,9 @@ class PositionInfo:
 
     def publish_new_head_position(self):
         head_position = [self.get_coordinate_x(), self.get_coordinate_y()]
-        self.move_head(100*(1-head_position[0])-50, 40*(head_position[1]-1)+20)
+        print("[HeadYaw, HeadPitch]")
+        print([40*(head_position[0]-0.5), 40*(head_position[1]-0.5)])
+        self.move_head(-40*(head_position[0]-0.5), 40*(head_position[1]-0.5))
 
     def move_head(self, HeadYaw, HeadPitch):
         ref = Float64MultiArray()
@@ -34,7 +36,8 @@ class PositionInfo:
         # head_pub.publish(ref)
         strmsg = "{}".format(ref)
         os.system('rostopic pub --once /qt_robot/head_position/command std_msgs/Float64MultiArray "'+strmsg+"\"")
-
+        # p = os.popen('rostopic --once pub /qt_robot/head_position/command std_msgs/Float64MultiArray "'+strmsg+"\"")
+        # print(p.read())
 
 def head_callback(msg):
     global count
