@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import rospy
+import numpy as np
 from qt_nuitrack_app.msg import Faces
 from std_msgs.msg import String
 from std_msgs.msg import Float64MultiArray
@@ -9,9 +10,10 @@ class PositionInfo:
     def __init__(self):
         self.coordinate_x = 0.5
         self.coordinate_y = 0.5
-        self.absolute_x = 0
-        self.absolute_y = -10
-    
+        self.current_head_pos = np.array([0, 0])
+        self.step_size = 10
+        self.threshold = 1e-6
+
     def get_coordinate_x(self):
         return self.coordinate_x
 
@@ -25,21 +27,47 @@ class PositionInfo:
         self.coordinate_y = (new_position[0] + new_position[1]) / 2
 
     def process_new_head_position(self):
-        HeadYaw = 90*(1-self.get_coordinate_x())-45 + self.absolute_x
-        HeadPitch = 30*(self.get_coordinate_x()-1)+15 + self.absolute_y
-        self.absolute_x = HeadYaw 
-        self.absolute_y = HeadPitch 
+        desired_face_location = np.array([0.5, 0.5])
+        actual_face_location = np.array([self.coordinate_x, self.coordinate_y])
 
-        print("[HeadYaw, HeadPitch]")
-        print([90*(1-self.get_coordinate_x())-45, 30*(self.get_coordinate_y()-1)+15])
-        print("Absolute position")
-        print([self.absolute_x, self.absolute_y])
+        diff_face_loc = desired_face_location - actual_face_location
+        if abs(diff_face_loc[0]) > self.threshold and abs(diff_face_loc[1]) > self.threshold:
+            self.current_head_pos[0] += self.step_size * diff_face_loc[0]
+            self.current_head_pos[1] -= self.step_size * diff_face_loc[1]
 
-        self.publish_head_position(HeadYaw, HeadPitch)
+        print("diff_face_loc:")
+        print(diff_face_loc)
+        print("actual_face_location:")
+        print(actual_face_location)
+        print("current_head_pos")
+        print(self.current_head_pos)
+        
+        publish_data = self.current_head_pos
+        if self.current_head_pos[0] > 45: 
+            publish_data[0] = 45
+        elif self.current_head_pos[0] < -45:
+            publish_data[0] = -45
+        if self.current_head_pos[1] > 20:
+            publish_data[1] = 20
+        elif self.current_head_pos[1] < -20:
+            self.current_head_pos[1] = -20
+        head_pub.publish(Float64MultiArray(data=publish_data))
 
-    def publish_head_position(self, HeadYaw, HeadPitch):
-        head = [HeadYaw, HeadPitch]
-        head_pub.publish(Float64MultiArray(data=head))
+        # HeadYaw = 90*(1-self.get_coordinate_x())-45 + self.absolute_x
+        # HeadPitch = 30*(self.get_coordinate_x()-1)+15 + self.absolute_y
+        # self.absolute_x = HeadYaw 
+        # self.absolute_y = HeadPitch 
+
+        # print("[HeadYaw, HeadPitch]")
+        # print([90*(1-self.coordinate_x)-45, 30*(self.coordinate_y-1)+15])
+        # print("Absolute position")
+        # print([self.absolute_x, self.absolute_y])
+
+        # self.publish_head_position(HeadYaw, HeadPitch)
+
+    # def publish_head_position(self, HeadYaw, HeadPitch):
+    #     head = [HeadYaw, HeadPitch]
+    #     head_pub.publish(Float64MultiArray(data=head))
 
 
 def callback(msg):
@@ -59,7 +87,7 @@ def callback(msg):
     rospy.loginfo(strmsg_x)
     rospy.loginfo(strmsg_y)
     my_position.process_new_head_position()
-    print("-----------------------------------------")
+    print("---------------------------------------------------")
 
 
 def show_expression(file_path):
