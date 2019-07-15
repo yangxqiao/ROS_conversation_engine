@@ -34,13 +34,6 @@ class PositionInfo:
         if abs(diff_face_loc[0]) > self.threshold and abs(diff_face_loc[1]) > self.threshold:
             self.current_head_pos[0] += self.step_size * diff_face_loc[0]
             self.current_head_pos[1] -= self.step_size * diff_face_loc[1]
-
-        print("diff_face_loc:")
-        print(diff_face_loc)
-        print("actual_face_location:")
-        print(actual_face_location)
-        print("current_head_pos")
-        print(self.current_head_pos)
         
         publish_data = self.current_head_pos
         if self.current_head_pos[0] > 45: 
@@ -53,22 +46,6 @@ class PositionInfo:
             self.current_head_pos[1] = -20
         head_pub.publish(Float64MultiArray(data=publish_data))
 
-        # HeadYaw = 90*(1-self.get_coordinate_x())-45 + self.absolute_x
-        # HeadPitch = 30*(self.get_coordinate_x()-1)+15 + self.absolute_y
-        # self.absolute_x = HeadYaw 
-        # self.absolute_y = HeadPitch 
-
-        # print("[HeadYaw, HeadPitch]")
-        # print([90*(1-self.coordinate_x)-45, 30*(self.coordinate_y-1)+15])
-        # print("Absolute position")
-        # print([self.absolute_x, self.absolute_y])
-
-        # self.publish_head_position(HeadYaw, HeadPitch)
-
-    # def publish_head_position(self, HeadYaw, HeadPitch):
-    #     head = [HeadYaw, HeadPitch]
-    #     head_pub.publish(Float64MultiArray(data=head))
-
 
 def callback(msg):
 
@@ -80,14 +57,6 @@ def callback(msg):
 
     strmsg_x = "The coordinate_x of the head: %.4f" % my_position.get_coordinate_x()
     strmsg_y = "The coordinate_y of the head: %.4f" % my_position.get_coordinate_y()
-
-    # show_expression("QT/happy")
-    # play_gesture("QT/happy")
-    
-    rospy.loginfo(strmsg_x)
-    rospy.loginfo(strmsg_y)
-    my_position.process_new_head_position()
-    print("---------------------------------------------------")
 
 
 def show_expression(file_path):
